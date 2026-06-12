@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Minas Valor</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/css/index.css" asp-append-version="true"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    />
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+
+        <!-- Logo / Nome -->
+        <a class="navbar-brand fw-bold logo" asp-controller="Home" asp-action="Index">
+            <div class="logo-icon">
+                <i class="fa-solid fa-hands-holding-circle"></i>
+            </div>
+            Minas Valor
+        </a>
+
+        <!-- Botão mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+
+            <!-- MENU ESQUERDA -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                @if (User.Identity != null && !User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#servicos">Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#agencias">Agências</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#diferenciais">Diferenciais</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#agentes">Atendimento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#depoimentos">Depoimentos</a>
+                    </li>
+                }
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="BankAccounts" asp-action="Index">
+                            Contas Bancárias
+                        </a>
+                    </li>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Users" asp-action="Index">
+                                Clientes
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+
+            <!-- MENU DIREITA -->
+            <ul class="navbar-nav">
+
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item d-flex align-items-center me-3">
+                        <span class="text-muted">
+                            Bem-vindo(a), <strong>@User.Identity.Name</strong>
+                        </span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="btn btn-outline-danger"
+                           asp-controller="Users"
+                           asp-action="Logout">
+                            Logout
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="btn btn-success"
+                           asp-controller="Users"
+                           asp-action="Login">
+                            Login
+                        </a>
+                    </li>
+                }
+
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<!-- CONTEÚDO -->
+<main role="main">
+    @RenderBody()
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+
+            <!-- LOGO / SOCIAL -->
+            <div class="footer-col">
+                <div class="logo mb-3">
+                    <strong>Minas Valor</strong>
+                </div>
+
+                <p>
+                    Cooperativa financeira comprometida com o desenvolvimento
+                    regional e o bem-estar dos nossos cooperados.
+                </p>
+
+                <div class="social-icons mt-3">
+                    <a style="cursor: pointer"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a style="cursor: pointer"><i class="fa-brands fa-instagram"></i></a>
+                    <a style="cursor: pointer"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a style="cursor: pointer"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+
+            <!-- INSTITUCIONAL -->
+            <div class="footer-col">
+                <h4>Institucional</h4>
+                <ul>
+                    <li><a style="cursor: pointer">Sobre a Minas Valor</a></li>
+                    <li><a style="cursor: pointer">Demonstrações Financeiras</a></li>
+                    <li><a style="cursor: pointer">Portal da Transparência</a></li>
+                    <li><a style="cursor: pointer">Trabalhe Conosco</a></li>
+                    <li><a style="cursor: pointer">Ouvidoria</a></li>
+                </ul>
+            </div>
+
+            <!-- PRODUTOS -->
+            <div class="footer-col">
+                <h4>Produtos</h4>
+                <ul>
+                    <li><a style="cursor: pointer">Conta Corrente</a></li>
+                    <li><a style="cursor: pointer">Cartões</a></li>
+                    <li><a style="cursor: pointer">Empréstimos</a></li>
+                    <li><a style="cursor: pointer">Financiamentos</a></li>
+                    <li><a style="cursor: pointer">Consórcios</a></li>
+                    <li><a style="cursor: pointer">Seguros</a></li>
+                </ul>
+            </div>
+
+            <!-- CONTATO -->
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p><i class="fa-solid fa-phone"></i> (35) 3000-0000</p>
+                <p><i class="fa-solid fa-envelope"></i> contato@minasvalor.br</p>
+                <p>
+                    <i class="fa-solid fa-location-dot"></i>
+                    Rua dos Cooperados, 1234<br/>
+                    Centro - Poços de Caldas/MG
+                </p>
+                <p><i class="fa-solid fa-clock"></i> Seg a Sex: 10h às 16h</p>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom text-center mt-4">
+            <p>
+                &copy; @DateTime.Now.Year Minas Valor Cooperativa de Crédito.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

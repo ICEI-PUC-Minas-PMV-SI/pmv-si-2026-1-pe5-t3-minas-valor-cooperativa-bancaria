@@ -1,0 +1,82 @@
+@model minas_valor_backend.Models.TransactionViewModel
+
+@{
+    ViewBag.Title = "Nova Transação";
+    Layout = "_Layout";
+
+    var isTransfer = Model.Operation == TransactionOperation.WireTransfer;
+    var isWithdraw = Model.Operation == TransactionOperation.Withdraw;
+    var isDeposit = Model.Operation == TransactionOperation.Deposit;
+
+    var title = isWithdraw ? "Saque"
+        : isDeposit ? "Depósito"
+        : "Transferência";
+
+    var actionName = isWithdraw ? "Withdraw"
+        : isDeposit ? "Deposit"
+        : "Transfer";
+}
+
+<div class="container p-3">
+    <h2>@title</h2>
+
+    <hr/>
+
+    <form asp-action="@actionName" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="FromAccountIdentifier"/>
+        <input type="hidden" asp-for="Operation"/>
+        <input type="hidden" asp-for="FromAccountId"/>
+
+        <div class="form-group">
+            <label>Conta origem</label>
+            <input class="form-control" value="@Model.FromAccountIdentifier" disabled/>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label>Valor</label>
+            <input asp-for="Value" class="form-control" type="number" step="0.01"/>
+            <span asp-validation-for="Value" class="text-danger"></span>
+        </div>
+
+        @if (isTransfer)
+        {
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Conta destino</label>
+
+                <select asp-for="ToAccountIdentifier" class="form-control">
+                    <option value="">Selecione uma conta</option>
+
+                    @foreach (var acc in Model.AvailableAccounts)
+                    {
+                        <option value="@acc.AccountIdentifier">
+                            @acc.AccountIdentifier - @acc.AccountBranch
+                        </option>
+                    }
+                </select>
+
+                <span asp-validation-for="ToAccountIdentifier" class="text-danger"></span>
+            </div>
+        }
+
+        <br/>
+
+        <button type="submit" class="btn btn-primary">
+            Confirmar @title
+        </button>
+
+        <a asp-controller="BankAccounts"
+           asp-action="Details"
+           asp-route-id="@Model.FromAccountId"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

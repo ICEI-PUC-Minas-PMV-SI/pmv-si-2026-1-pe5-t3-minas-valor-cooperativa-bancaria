@@ -1,0 +1,64 @@
+@model minas_valor_backend.Models.BankAccount
+
+@{
+    ViewBag.Title = "Editar Conta Bancária";
+    Layout = "_Layout";
+
+    var isClosed = Model.ClosedAt != null;
+    var isUpdated = Model.UpdatedAt != null;
+}
+
+<div class="container p-3">
+    <h2>Editar Conta Bancária</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id"/>
+
+        <div class="form-group">
+            <label asp-for="AccountIdentifier"></label>
+            <input asp-for="AccountIdentifier" class="form-control" disabled="@(isClosed)"/>
+            <span asp-validation-for="AccountIdentifier" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="AccountBranch"></label>
+            <select asp-for="AccountBranch" class="form-control" disabled="@(isClosed)">
+                <option value="PocosDeCaldas">Poços de Caldas</option>
+                <option value="Andradas">Andradas</option>
+                <option value="AguasDePrata">Águas de Prata</option>
+                <option value="SaoJoaoDaBoaVista">São João da Boa Vista</option>
+                <option value="BandeiraDoSul">Bandeira do Sul</option>
+                <option value="SaoJoseDoRioPardo">São José do Rio Pardo</option>
+            </select>
+            <span asp-validation-for="AccountBranch" class="text-danger"></span>
+        </div>
+
+        @if (isUpdated)
+        {
+            <div class="form-group">
+                <label asp-for="UpdatedAt"></label>
+                <input asp-for="UpdatedAt" class="form-control" disabled/>
+            </div>
+        }
+
+        @if (isClosed)
+        {
+            <div class="form-group">
+                <label asp-for="ClosedAt"></label>
+                <input asp-for="ClosedAt" class="form-control" disabled/>
+            </div>
+        }
+
+        <br/>
+
+        <button type="submit" class="btn btn-primary" @(isClosed ? "disabled" : "")>
+            Salvar
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

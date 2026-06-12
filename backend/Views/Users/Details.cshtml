@@ -1,0 +1,42 @@
+@model minas_valor_backend.Models.User
+
+@{
+    ViewBag.Title = "Detalhes do Usuário";
+    Layout = "_Layout";
+}
+
+<div class="container p-3">
+    <div style="display: flex; align-items: center; gap: 30px">
+        <h2 style="margin: 0">Informações do usuário</h2>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    </div>
+
+    <hr/>
+
+    <div style="font-size: 18px; line-height: 2;">
+
+        <p>
+            <strong>Nome:</strong>
+            @Model.Name
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            @Model.Email
+        </p>
+
+        <p>
+            <strong>Papel:</strong>
+            @Html.DisplayFor(model => model.Role)
+        </p>
+
+        <p>
+            <strong>Usuário criado em:</strong>
+            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+        </p>
+    </div>
+
+    <br/>
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>

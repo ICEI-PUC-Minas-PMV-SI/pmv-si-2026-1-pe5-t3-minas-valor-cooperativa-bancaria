@@ -1,0 +1,51 @@
+@model System.Collections.Generic.List<minas_valor_backend.Models.BankAccount>
+
+@{
+    ViewBag.Title = "ContasBancárias";
+    Layout = "_Layout";
+}
+
+<div class="container p-3">
+    <h2>Contas bancárias cadastradas</h2>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary">+ Criar nova conta</a>
+    </p>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model[0].AccountIdentifier)</th>
+            <th>@Html.DisplayNameFor(model => model[0].AccountBranch)</th>
+            <th>@Html.DisplayNameFor(model => model[0].ClosedAt)</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var account in Model)
+            {
+                <tr>
+                    <td>@account.AccountIdentifier</td>
+                    <td>@Html.DisplayFor(modelItem => account.AccountBranch)</td>
+                    <td>@(account.ClosedAt == null
+                            ? "Conta Ativa"
+                            : $"Conta fechada em {account.ClosedAt.Value.ToString("dd/MM/yyyy")}")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@account.Id" class="btn btn-info btn-sm">Detalhes</a>
+                        <a asp-action="Edit" asp-route-id="@account.Id" class="btn btn-warning btn-sm">Editar</a>
+                        <a asp-action="Delete" asp-route-id="@account.Id" class="btn btn-danger btn-sm">Excluir</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">Nenhuma conta cadastrada.</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

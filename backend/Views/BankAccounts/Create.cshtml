@@ -1,0 +1,34 @@
+@model minas_valor_backend.Models.BankAccountCreateViewModel
+
+@{
+    ViewBag.Title = "Criar Conta Bancária";
+    Layout = "_Layout";
+}
+<div class="container p-3">
+    <h2>Criar nova conta</h2>
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-group mb-3">
+            <label asp-for="AccountIdentifier" class="form-label"></label>
+            <input asp-for="AccountIdentifier" class="form-control" placeholder="000000-0"/>
+            <span asp-validation-for="AccountIdentifier" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="AccountBranch" class="form-label"></label>
+            <select asp-for="AccountBranch" class="form-control"
+                    asp-items="Html.GetEnumSelectList<minas_valor_backend.Models.AccountBranch>()">
+            </select>
+            <span asp-validation-for="AccountBranch" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Salvar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}

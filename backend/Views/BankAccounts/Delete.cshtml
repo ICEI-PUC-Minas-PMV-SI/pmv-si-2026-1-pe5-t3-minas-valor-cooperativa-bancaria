@@ -1,0 +1,74 @@
+@model minas_valor_backend.Models.BankAccount
+
+@{
+    ViewBag.Title = "Encerrar Conta Bancária";
+    Layout = "_Layout";
+
+    var isClosed = Model.ClosedAt != null;
+    var title = isClosed ? "Conta encerrada" : "Tem certeza de que você quer encerrar esta conta bancária?";
+}
+
+<div class="container p-3">
+    <h2>Encerrar Conta Bancária</h2>
+
+    <hr/>
+
+    <h4 style="color: red;">
+        @title
+    </h4>
+
+    <br/>
+
+    <div style="font-size: 18px; line-height: 2;">
+
+        <p>
+            <strong>Número da conta:</strong>
+            @Model.AccountIdentifier
+        </p>
+
+        <p>
+            <strong>Banco:</strong>
+            @Html.DisplayFor(model => model.AccountBranch)
+        </p>
+
+        <p>
+            <strong>Saldo atual:</strong>
+            @Model.Balance.ToString("C")
+        </p>
+
+        <p>
+            <strong>Conta criada em:</strong>
+            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+        </p>
+
+        <p>
+            <strong>Última atualização:</strong>
+            @(@Model.UpdatedAt == null ? "-" : Model.UpdatedAt.Value.ToString("dd/MM/yyyy"))
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            @(Model.ClosedAt == null
+                ? "Conta Ativa"
+                : $"Conta encerrada em {Model.ClosedAt.Value.ToString("dd/MM/yyyy")}")
+        </p>
+
+    </div>
+
+    <br/>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id"/>
+
+        @if (!isClosed)
+        {
+            <button type="submit" class="btn btn-danger">
+                Confirmar Encerramento
+            </button>
+        }
+
+        <a asp-action="Index" class="btn btn-secondary">
+            Cancelar
+        </a>
+    </form>
+</div>

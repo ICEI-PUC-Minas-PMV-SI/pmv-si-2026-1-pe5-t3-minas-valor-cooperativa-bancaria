@@ -1,0 +1,145 @@
+@model minas_valor_backend.Models.BankAccount
+
+@{
+    ViewBag.Title = "Detalhes da Conta Bancária";
+    Layout = "_Layout";
+
+    var isClosed = @Model.ClosedAt != null;
+    var transactions = ViewBag.Transactions as List<minas_valor_backend.Models.Transaction>;
+}
+
+<div class="container p-3">
+    <div style="display: flex; align-items: center; gap: 30px">
+        <h2 style="margin: 0">Relatório da Conta Bancária</h2>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+    </div>
+
+    <hr/>
+
+    <div style="font-size: 18px; line-height: 2;">
+
+        <p>
+            <strong>Número da conta:</strong>
+            @Model.AccountIdentifier
+        </p>
+
+        <p>
+            <strong>Banco:</strong>
+            @Html.DisplayFor(model => model.AccountBranch)
+        </p>
+
+        <p>
+            <strong>Saldo:</strong>
+            @Model.Balance.ToString("C")
+        </p>
+
+        <p>
+            <strong>Conta criada em:</strong>
+            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+        </p>
+
+        <p>
+            <strong>Última atualização:</strong>
+            @(@Model.UpdatedAt == null ? "-" : Model.UpdatedAt.Value.ToString("dd/MM/yyyy"))
+        </p>
+
+        <p>
+            <strong>Status:</strong>
+            @(Model.ClosedAt == null
+                ? "Conta Ativa"
+                : $"Conta fechada em {Model.ClosedAt.Value.ToString("dd/MM/yyyy")}")
+        </p>
+
+    </div>
+
+    <br/>
+
+    <h2>Extrato</h2>
+
+    @if (transactions == null || !transactions.Any())
+    {
+        <p><strong>Sem movimentações.</strong></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Data</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var t in transactions)
+            {
+                string description = "";
+                string formattedValue = "";
+                var isPlusSign = false;
+
+                if (t.Operation == TransactionOperation.Deposit)
+                {
+                    description = "Depósito";
+                    formattedValue = "+" + t.Value.ToString("C");
+                    isPlusSign = true;
+                }
+                else if (t.Operation == TransactionOperation.Withdraw)
+                {
+                    description = "Saque";
+                    formattedValue = "-" + t.Value.ToString("C");
+                }
+                else if (t.Operation == TransactionOperation.WireTransfer)
+                {
+                    if (t.FromBankAccountId == Model.Id)
+                    {
+                        description = $"Transferência enviada para {t.ToBankAccount.AccountIdentifier}";
+                        formattedValue = "-" + t.Value.ToString("C");
+                    }
+                    else
+                    {
+                        description = $"Transferência recebida de {t.FromBankAccount.AccountIdentifier}";
+                        formattedValue = "+" + t.Value.ToString("C");
+                        isPlusSign = true;
+                    }
+                }
+
+                <tr>
+                    <td>@description</td>
+                    <td style="color:@(isPlusSign ? "green" : "red")">
+                        @formattedValue
+                    </td>
+                    <td>@t.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    <br/>
+
+    @if (!isClosed)
+    {
+        <a asp-controller="Transactions"
+           asp-action="Withdraw"
+           asp-route-accountId="@Model.Id"
+           class="btn btn-warning">
+            Saque
+        </a>
+
+        <a asp-controller="Transactions"
+           asp-action="Deposit"
+           asp-route-accountId="@Model.Id"
+           class="btn btn-success">
+            Depósito
+        </a>
+
+        <a asp-controller="Transactions"
+           asp-action="Transfer"
+           asp-route-fromAccountId="@Model.Id"
+           class="btn btn-info">
+            Transferência
+        </a>
+    }
+    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+</div>

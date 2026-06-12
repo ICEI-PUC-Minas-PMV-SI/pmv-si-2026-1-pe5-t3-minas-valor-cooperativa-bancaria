@@ -44,5 +44,5 @@ Vinícius de Araújo Portela
 
 ## Orientador
 
-* Alexandre Teixeira
+Alexandre Teixeira
 

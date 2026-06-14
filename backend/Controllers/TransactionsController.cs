@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +30,16 @@ public class TransactionsController : Controller
             return NotFound();
         }
 
+        if (!User.IsInRole("Admin") && account.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
         var vm = new TransactionViewModel
         {
             FromAccountId = account.Id,
             FromAccountIdentifier = account.AccountIdentifier,
+            Balance = account.Balance,
             Operation = TransactionOperation.Withdraw
         };
 
@@ -49,6 +56,13 @@ public class TransactionsController : Controller
             return NotFound();
         }
 
+        if (!User.IsInRole("Admin") && account.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
+        vm.Balance = account.Balance;
+
         if (vm.Value <= 0)
         {
             ModelState.AddModelError("", "Valor inválido.");
@@ -57,7 +71,7 @@ public class TransactionsController : Controller
 
         if (vm.Value > account.Balance)
         {
-            ModelState.AddModelError("", "Saldo insuficiente.");
+            ModelState.AddModelError("", $"Saldo insuficiente. Saldo disponível: {account.Balance:C}.");
             return View("Create", vm);
         }
 
@@ -95,10 +109,16 @@ public class TransactionsController : Controller
             return NotFound();
         }
 
+        if (!User.IsInRole("Admin") && account.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
         var vm = new TransactionViewModel
         {
             FromAccountId = account.Id,
             FromAccountIdentifier = account.AccountIdentifier,
+            Balance = account.Balance,
             Operation = TransactionOperation.Deposit
         };
 
@@ -114,6 +134,13 @@ public class TransactionsController : Controller
         {
             return NotFound();
         }
+
+        if (!User.IsInRole("Admin") && account.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
+        vm.Balance = account.Balance;
 
         if (vm.Value <= 0)
         {
@@ -155,6 +182,11 @@ public class TransactionsController : Controller
             return NotFound();
         }
 
+        if (!User.IsInRole("Admin") && fromAccount.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
         var accounts = await _context.BankAccounts
             .Where(a => a.Id != fromAccountId.Value && a.ClosedAt == null)
             .ToListAsync();
@@ -163,6 +195,7 @@ public class TransactionsController : Controller
         {
             FromAccountId = fromAccount.Id,
             FromAccountIdentifier = fromAccount.AccountIdentifier,
+            Balance = fromAccount.Balance,
             Operation = TransactionOperation.WireTransfer,
             AvailableAccounts = accounts
         };
@@ -183,6 +216,13 @@ public class TransactionsController : Controller
             return NotFound();
         }
 
+        if (!User.IsInRole("Admin") && from.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
+        vm.Balance = from.Balance;
+
         if (vm.Value <= 0)
         {
             ModelState.AddModelError("", "Valor inválido.");
@@ -195,7 +235,7 @@ public class TransactionsController : Controller
 
         if (vm.Value > from.Balance)
         {
-            ModelState.AddModelError("", "Saldo insuficiente.");
+            ModelState.AddModelError("", $"Saldo insuficiente. Saldo disponível: {from.Balance:C}.");
         }
 
         if (!ModelState.IsValid)
@@ -239,4 +279,7 @@ public class TransactionsController : Controller
 
         return RedirectToAction("Details", "BankAccounts", new { id = from.Id });
     }
+
+    private int? CurrentUserId()
+        => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
 }

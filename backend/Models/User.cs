@@ -7,7 +7,7 @@ namespace minas_valor_backend.Models;
 public class User
 {
     [Key]
-    public required int Id { get; set; }
+    public int Id { get; set; }
     
     [Required(ErrorMessage = "Nome é obrigatório")]
     [Display(Name = "Nome")]

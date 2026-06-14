@@ -23,6 +23,11 @@ public class MinasValorContext : DbContext
 
             entity.Property(b => b.Balance)
                 .HasPrecision(18, 2);
+
+            entity.HasOne(b => b.Owner)
+                .WithMany()
+                .HasForeignKey(b => b.OwnerId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<Transaction>(entity =>

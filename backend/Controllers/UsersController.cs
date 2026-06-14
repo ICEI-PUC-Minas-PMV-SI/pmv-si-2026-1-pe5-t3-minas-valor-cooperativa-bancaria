@@ -29,12 +29,14 @@ public class UsersController : Controller
 
     [HttpPost]
     [AllowAnonymous]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(User userLogin)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userLogin.Email);
         if (user == null)
         {
             ViewBag.Message = "E-mail e/ou senha estão incorretos";
+            return View();
         }
 
         bool isValidPassword = BCrypt.Net.BCrypt.Verify(userLogin.Password, user.Password);
@@ -43,6 +45,7 @@ public class UsersController : Controller
         {
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
@@ -96,6 +99,7 @@ public class UsersController : Controller
     /// Get all users
     /// </summary>
     /// <returns></returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Index()
     {
         return View(await _context.Users.ToListAsync());
@@ -107,6 +111,7 @@ public class UsersController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -125,7 +130,7 @@ public class UsersController : Controller
     }
 
     /// <summary>
-    /// Create user
+    /// Create user (public self-registration, or admin-managed creation)
     /// </summary>
     /// <returns></returns>
     [AllowAnonymous]
@@ -136,15 +141,26 @@ public class UsersController : Controller
 
     [HttpPost]
     [AllowAnonymous]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(User user)
     {
+        // Only administrators may assign roles; public self-registration is always a Cooperado.
+        if (!User.IsInRole(UserRole.Admin.ToString()))
+        {
+            user.Role = UserRole.User;
+        }
+
         if (ModelState.IsValid)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             user.CreatedAt = DateTime.UtcNow;
             _context.Add(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            // Admins return to the user list; self-registered members go to the login page.
+            return User.IsInRole(UserRole.Admin.ToString())
+                ? RedirectToAction(nameof(Index))
+                : RedirectToAction(nameof(Login));
         }
 
         return View(user);
@@ -155,6 +171,7 @@ public class UsersController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -172,6 +189,8 @@ public class UsersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, User user)
     {
         if (id != user.Id)
@@ -209,6 +228,7 @@ public class UsersController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -227,6 +247,8 @@ public class UsersController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         if (id == null)

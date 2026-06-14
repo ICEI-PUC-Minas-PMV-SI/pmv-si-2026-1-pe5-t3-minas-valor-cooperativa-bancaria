@@ -7,5 +7,6 @@ public class TransactionViewModel
     public string? ToAccountIdentifier { get; set; }
     public TransactionOperation Operation { get; set; }
     public decimal Value { get; set; }
+    public decimal Balance { get; set; }
     public List<BankAccount>? AvailableAccounts { get; set; }
 }

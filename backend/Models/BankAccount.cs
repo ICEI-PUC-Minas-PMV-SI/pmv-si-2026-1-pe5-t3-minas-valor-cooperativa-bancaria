@@ -26,6 +26,11 @@ public class BankAccount
     
     [Display(Name ="Status")]
     public DateTime? ClosedAt { get; set; }
+
+    [Display(Name ="Titular")]
+    public int? OwnerId { get; set; }
+
+    public User? Owner { get; set; }
     
     public ICollection<Transaction> TransactionsFrom { get; set; }
     

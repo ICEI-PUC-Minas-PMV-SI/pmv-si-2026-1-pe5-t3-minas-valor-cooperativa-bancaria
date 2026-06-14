@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using minas_valor_backend.Models;
@@ -11,9 +12,11 @@ using minas_valor_backend.Models;
 namespace minas_valor_backend.Migrations
 {
     [DbContext(typeof(MinasValorContext))]
-    partial class MinasValorContextModelSnapshot : ModelSnapshot
+    [Migration("20260614182957_AddBankAccountOwner")]
+    partial class AddBankAccountOwner
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

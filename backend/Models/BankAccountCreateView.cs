@@ -4,4 +4,5 @@ public class BankAccountCreateViewModel
 {
     public string AccountIdentifier { get; set; }
     public AccountBranch AccountBranch { get; set; }
+    public int? OwnerId { get; set; }
 }

@@ -1,0 +1,37 @@
+# ---- .NET build output ----
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+
+# ---- .NET / NuGet ----
+project.lock.json
+project.fragment.lock.json
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.nupkg
+.packages/
+
+# ---- ASP.NET secrets (don't commit local secrets) ----
+appsettings.*.local.json
+
+# ---- JetBrains Rider ----
+.idea/
+*.sln.iml
+
+# ---- Visual Studio / VS Code ----
+.vs/
+.vscode/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

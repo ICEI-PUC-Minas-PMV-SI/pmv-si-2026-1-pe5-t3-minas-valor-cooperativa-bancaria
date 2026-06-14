@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using minas_valor_backend.Models;
 
@@ -16,12 +18,23 @@ public class BankAccountsController : Controller
     }
 
     /// <summary>
-    /// Get all bank accounts
+    /// Get bank accounts (all for staff; only own for Cooperados)
     /// </summary>
     /// <returns></returns>
     public async Task<IActionResult> Index()
     {
-        return View(await _context.BankAccounts.ToListAsync());
+        var accounts = _context.BankAccounts
+            .Include(b => b.Owner)
+            .AsQueryable();
+
+        // Cooperados only see their own accounts; staff (Admin) see all.
+        if (!User.IsInRole("Admin"))
+        {
+            var userId = CurrentUserId();
+            accounts = accounts.Where(b => b.OwnerId == userId);
+        }
+
+        return View(await accounts.ToListAsync());
     }
 
     /// <summary>
@@ -29,8 +42,9 @@ public class BankAccountsController : Controller
     /// </summary>
     /// <returns></returns>
     [Authorize(Roles = "Admin")]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await PopulateOwnersAsync();
         return View();
     }
 
@@ -44,7 +58,8 @@ public class BankAccountsController : Controller
             Balance = 0,
             CreatedAt = DateTime.UtcNow,
             AccountIdentifier = bankAccountCreateDto.AccountIdentifier,
-            AccountBranch = bankAccountCreateDto.AccountBranch
+            AccountBranch = bankAccountCreateDto.AccountBranch,
+            OwnerId = bankAccountCreateDto.OwnerId
         };
         if (ModelState.IsValid)
         {
@@ -52,8 +67,9 @@ public class BankAccountsController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-        
-        return View(bankAccount);
+
+        await PopulateOwnersAsync();
+        return View(bankAccountCreateDto);
     }
 
     /// <summary>
@@ -68,18 +84,19 @@ public class BankAccountsController : Controller
         {
             return NotFound();
         }
-        
+
         var bankAccount = await _context.BankAccounts.FindAsync(id);
         if (bankAccount == null)
         {
             return NotFound();
         }
-        
+
         return  View(bankAccount);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, BankAccount bankAccount)
     {
         if (id != bankAccount.Id)
@@ -107,7 +124,7 @@ public class BankAccountsController : Controller
 
         return View(bankAccount);
     }
-    
+
     /// <summary>
     /// Get one bank account
     /// </summary>
@@ -119,13 +136,21 @@ public class BankAccountsController : Controller
         {
             return new NotFoundResult();
         }
-        
-        var bankAccount = await _context.BankAccounts.FindAsync(id);
+
+        var bankAccount = await _context.BankAccounts
+            .Include(b => b.Owner)
+            .FirstOrDefaultAsync(b => b.Id == id);
         if (bankAccount == null)
         {
             return NotFound();
         }
-        
+
+        // Cooperados may only view their own accounts.
+        if (!User.IsInRole("Admin") && bankAccount.OwnerId != CurrentUserId())
+        {
+            return Forbid();
+        }
+
         var transactions = await _context.Transactions
             .Where(t => t.FromBankAccountId == id || t.ToBankAccountId == id)
             .Include(t => t.FromBankAccount)
@@ -134,10 +159,10 @@ public class BankAccountsController : Controller
             .ToListAsync();
 
         ViewBag.Transactions = transactions;
-        
+
         return  View(bankAccount);
     }
-    
+
     /// <summary>
     /// Close a bank account
     /// </summary>
@@ -150,36 +175,49 @@ public class BankAccountsController : Controller
         {
             return new NotFoundResult();
         }
-        
+
         var bankAccount = await _context.BankAccounts.FindAsync(id);
         if (bankAccount == null)
         {
             return NotFound();
         }
-        
+
         return  View(bankAccount);
     }
-    
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         if (id == null)
         {
             return NotFound();
         }
-        
+
         var bankAccount = await _context.BankAccounts.FindAsync(id);
         if (bankAccount == null)
         {
             return NotFound();
         }
-        
+
         bankAccount.ClosedAt = DateTime.UtcNow;
         bankAccount.Balance = 0;
         await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
-    
+
+    private int? CurrentUserId()
+        => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+
+    private async Task PopulateOwnersAsync()
+    {
+        var cooperados = await _context.Users
+            .Where(u => u.Role == UserRole.User)
+            .OrderBy(u => u.Name)
+            .ToListAsync();
+
+        ViewBag.Owners = new SelectList(cooperados, "Id", "Name");
+    }
 }

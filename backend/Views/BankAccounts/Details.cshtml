@@ -4,7 +4,7 @@
     ViewBag.Title = "Detalhes da Conta Bancária";
     Layout = "_Layout";
 
-    var isClosed = @Model.ClosedAt != null;
+    var isClosed = Model.ClosedAt != null;
     var transactions = ViewBag.Transactions as List<minas_valor_backend.Models.Transaction>;
 }
 
@@ -12,7 +12,10 @@
     <div style="display: flex; align-items: center; gap: 30px">
         <h2 style="margin: 0">Relatório da Conta Bancária</h2>
 
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+        }
     </div>
 
     <hr/>
@@ -41,7 +44,7 @@
 
         <p>
             <strong>Última atualização:</strong>
-            @(@Model.UpdatedAt == null ? "-" : Model.UpdatedAt.Value.ToString("dd/MM/yyyy"))
+            @(Model.UpdatedAt == null ? "-" : Model.UpdatedAt.Value.ToString("dd/MM/yyyy"))
         </p>
 
         <p>

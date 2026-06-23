@@ -1,22 +1,22 @@
 cff-version: 1.0.1
-message: Please cite this software using these metadata.
-title:
+message: Projeto de Infraestrutura de Redes para um cooperativa bancária fictícia: Minas Valor
+title: Minas Valor - Cooperativa Bancária
 authors:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - family-names:
-    given-names:
-  - name-suffix: Professor XXXX
+  - family-names: Tavares Leite Silva
+    given-names: Ádria
+  - family-names: Aparecida de Souza
+    given-names: Daniele
+  - family-names: Silva
+    given-names: Jhonata Augusto
+  - family-names: Alves de Sousa
+    given-names: João Victor
+  - family-names: Perlatto Lotti Garcia
+    given-names: Lucas
+  - family-names: Pitta Sesso
+    given-names: Sofia
+  - family-names: de Araújo Portela
+    given-names: Vinícius
+  - name-suffix: Professor Alexandre Texeira
     affiliation: PUC Minas
     family-names:
     given-names:
@@ -26,4 +26,4 @@ keywords:
 repository-code:
 license: CC-BY-4.0
 version: 1.0.0
-date-released: 2023-06-30
+date-released: 2026-06-23
